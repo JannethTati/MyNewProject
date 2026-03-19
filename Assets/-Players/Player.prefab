@@ -50,11 +50,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 7
   jumpForce: 15
-  groundCheck: {fileID: 0}
-  groundRadius: 0.03
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 1
 --- !u!212 &4931401459565996291
 SpriteRenderer:
   m_ObjectHideFlags: 0

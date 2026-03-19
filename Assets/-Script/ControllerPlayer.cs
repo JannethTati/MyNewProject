@@ -7,56 +7,69 @@ public class ControllerPlayer : MonoBehaviour
     public float speed = 5f;
     public float jumpForce = 10f;
 
-
     private Rigidbody2D rb;
     private Animator anim;
 
-    public Transform groundCheck;
-    public float groundRadius = 0.5f;
-    public LayerMask groundLayer;
-    private bool isGrounded = true;
+    private bool isGrounded;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-    }    
+    }
 
     void Update()
     {
-        CheckGround();
         Move();
         Jump();
         UpdateAnimation();
     }
-        void Move()
+
+    void Move()
     {
         float move = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
 
         // Girar personaje
-        if (move > 0) transform.localScale = new Vector3(1, 1, 1);
-        else if (move < 0) transform.localScale = new Vector3(-1, 1, 1);
+        if (move > 0)
+            transform.localScale = new Vector3(1, 1, 1);
+        else if (move < 0)
+            transform.localScale = new Vector3(-1, 1, 1);
     }
 
     void Jump()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        // Solo salta si está en el suelo
+        if (Input.GetKeyDown(KeyCode.W) && isGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            isGrounded = false;
+            isGrounded = false; // evita doble salto
         }
     }
 
-    void CheckGround()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
-    }
     void UpdateAnimation()
     {
         float move = Mathf.Abs(rb.linearVelocity.x);
-        anim.SetBool("Running", move > 0.1f);   // Controla Idle/Run
+
+        anim.SetBool("Running", move > 0.1f);
         anim.SetBool("IsJumping", !isGrounded);
-        anim.SetBool("Falling", rb.linearVelocity.y < -0.1f);
+        anim.SetFloat("VerticalVelocity", rb.linearVelocity.y);
+    }
+
+    // Detectar suelo con colisiones
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
     }
 }
